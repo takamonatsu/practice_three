@@ -7,7 +7,7 @@ let scene, camera, renderer;
 function init() {
   // シーン
   scene = new THREE.Scene();
-  
+
   // カメラ
   camera = new THREE.PerspectiveCamera(
     100,
@@ -20,11 +20,12 @@ function init() {
   // レンダラー
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncording = THREE.sRGBEncoding;
   document.body.appendChild(renderer.domElement);
 
   // 環境光
   const light = new THREE.PointLight(0xffffff, 1);
-  light.position.set(10, 10, 10);
+  light.position.set(100, 10, 10);
   scene.add(light);
 
   // 平行光
@@ -32,19 +33,16 @@ function init() {
   directionalLight.position.set(1, 1, 1);
   scene.add(directionalLight);
 
+  // アルファベット作成
   const fontLoader = new FontLoader();
   fontLoader.load('../fonts/helvetiker_regular.typeface.json', (font) => {
     const material = new THREE.MeshStandardMaterial({ color: 0x0077ff });
 
-    createTextMesh('A', 0, font, material);
-    createTextMesh('B', 2, font, material);
-    createTextMesh('C', 4, font, material);
-    createTextMesh('D', 6, font, material);
-    createTextMesh('E', 8, font, material);
-    createTextMesh('F', 10, font, material);
-    createTextMesh('G', 12, font, material);
-    createTextMesh('H', 14, font, material);
-    createTextMesh('I', 16, font, material);
+    for(let i = 0; i < 70; i++){
+      const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+      const randamAlphabet =alphabet[Math.floor(Math.random() * 26)];
+      createTextMesh(randamAlphabet, font, material);
+    }
   });
 
   // アニメーション開始
@@ -56,20 +54,41 @@ function init() {
 
 
 // アルファベット作成
-function createTextMesh(text, positionX, font, material) {
+function createTextMesh(text, font, material) {
   const textGeometry = new TextGeometry(text, {
     font: font,
-    size: 1,
+    size: 0.2 + Math.random() * 2,
     depth: 0.2,
   });
+
   const textMesh = new THREE.Mesh(textGeometry, material);
-  textMesh.position.set(positionX, 0, 0);
+
+  textMesh.position.set(
+    -20 + Math.random() * 40,
+    -5 + Math.random() * 10,
+    0
+  );
+
+  textMesh.rotation.set(
+    Math.random() * Math.PI * 2,
+    Math.random() * Math.PI * 2,
+    Math.random() * Math.PI * 2
+  );
+
   scene.add(textMesh);
 }
 
 // アニメーションループ
 function animate() {
   requestAnimationFrame(animate);
+
+  // 各アルファベットの回転を更新
+  scene.children.forEach((child) => {
+    if (child.type === 'Mesh') {
+      child.rotation.y += 0.01;
+    }
+  });
+
   renderer.render(scene, camera);
 }
 
